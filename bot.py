@@ -1,7 +1,8 @@
-import logging
+Import logging
 import sqlite3
 import random
-from aiogram import Bot, Dispatcher, executor, types
+import os  # *** تأكد من وجود هذا السطر لاستخدام التوكن من البيئة ***
+from aiogram import Bot, Dispatcher, types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
@@ -11,12 +12,14 @@ import asyncio
 
 # ------------ Config ------------
 # تم تحديث التوكن ومعرف الأدمن الخاص بك
-TOKEN = os.environ.get("BOT_TOKEN")
+# يجب أن يكون TOKEN = os.environ.get("BOT_TOKEN") بدلاً من API_TOKEN
+TOKEN = os.environ.get("BOT_TOKEN") 
 ADMIN_ID = 7549947471 
 
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot(token=API_TOKEN)
+# يجب استخدام TOKEN بدلاً من API_TOKEN
+bot = Bot(token=TOKEN) 
 dp = Dispatcher(bot, storage=MemoryStorage())
 
 # ------------ Database Setup (SQLite) ------------
@@ -1278,6 +1281,10 @@ async def show_products_in_category(cb: types.CallbackQuery):
 
 # ------------ Run Bot ------------
 if __name__ == '__main__':
-    init_db() 
-    executor.start_polling(dp, skip_updates=True)
-
+    init_db()
+    try:
+        # البدء باستخدام asyncio بدلاً من executor.start_polling
+        dp.loop.run_until_complete(dp.start_polling(bot))
+    except RuntimeError as e:
+        # هذا الجزء للتعامل مع أخطاء الإغلاق الشائعة عند التشغيل في بعض البيئات
+        pass
